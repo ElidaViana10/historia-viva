@@ -394,64 +394,6 @@ function sendChip(el) {
   sendMessage();
 }
 
-async function sendMessage() {
-  const text = input.value.trim();
-  if (!text || isLoading) return;
-
-  suggestions.style.display = 'none';
-  input.value = '';
-  input.style.height = 'auto';
-  sendBtn.disabled = true;
-  isLoading = true;
-
-  addMessage('user', text);
-  messages.push({ role: 'user', content: text });
-
-  const { msg: typingEl } = addMessage('bot', '', true);
-
-  try {
-    const OR_KEY = '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';
-
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OR_KEY}`,
-        'HTTP-Referer': 'https://elidaviana10.github.io/historia-viva/',
-        'X-Title': 'Historiador Virtual - Historia Viva'
-      },
-      body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-8b-instruct:free',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          ...messages
-        ],
-        max_tokens: 1000,
-        temperature: 0.7
-      })
-    });
-
-    const data = await res.json();
-    typingEl.remove();
-
-    const reply = data?.choices?.[0]?.message?.content;
-    if (reply) {
-      messages.push({ role: 'assistant', content: reply });
-      addMessage('bot', reply);
-    } else {
-      addMessage('bot', '⚠️ Não consegui obter uma resposta. Tente novamente.');
-    }
-  } catch (err) {
-    typingEl.remove();
-    addMessage('bot', '⚠️ Erro de conexão. Verifique sua internet e tente novamente.');
-    console.error(err);
-  }
-
-  sendBtn.disabled = false;
-  isLoading = false;
-  input.focus();
-}
-
 // Welcome message
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
@@ -465,11 +407,24 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+   
      
+
+    
       
-    .
   
+
       
    
+    
+      
+     
+
+  
+  
+  
+   
+     
 
   
