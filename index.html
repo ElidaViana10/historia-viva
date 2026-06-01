@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -410,27 +411,32 @@ async function sendMessage() {
   const { msg: typingEl } = addMessage('bot', '', true);
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': 'api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',
-  'anthropic-version': '2023-06-01',
-  'anthropic-dangerous-direct-browser-access': 'true'
-},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: messages
-      })
-    });
+    const GEMINI_KEY = 'SUA_CHAVE_GEMINI_AQUI';
+
+    // Monta histórico no formato Gemini
+    const geminiContents = messages.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: geminiContents,
+          generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+        })
+      }
+    );
 
     const data = await res.json();
     typingEl.remove();
 
-    if (data.content && data.content[0]) {
-      const reply = data.content.map(b => b.text || '').join('');
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (reply) {
       messages.push({ role: 'assistant', content: reply });
       addMessage('bot', reply);
     } else {
